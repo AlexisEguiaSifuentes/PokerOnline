@@ -1,0 +1,470 @@
+html {
+    box-sizing: border-box;
+   
+}
+
+body{
+    padding: 0;
+    margin: 0;    
+    background-color: rgb(180, 172, 172);
+}
+
+/* Estilos de la mesa */
+#mesa{
+    width: 1250px;
+    height: 550px;
+    background-color: green;
+    margin: 0 auto;
+    border: solid 30px maroon;
+    border-radius: 2000px; 
+    transform: scale(.85);
+}
+
+#interfazInicio{
+    position: absolute;    
+    width: 550px;
+    height: 550px;   
+    top:20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(1, 42, 1, 0.861);
+    border: solid 10px rgb(1, 42, 1);
+    border-radius: 50px;
+}
+
+h1{
+    text-align: center;
+    font-size: 75px;
+    font-family: 'Rubik Storm';
+    font-weight: 400;
+    font-style: normal;
+    color: white;
+    margin: 0;
+    padding: 0;
+    padding-top: 20px;
+}
+
+form{
+    display: flex; 
+    flex-direction:column;
+    width: 80%;
+    height: 350px;
+    margin: 0 auto;
+    margin-top: 50px;    
+}
+
+label{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 35px;
+    font-weight: 600;
+    width: 90%;
+    color: white;
+    margin: 0 auto;
+    margin-top: 30px;
+
+}
+input{
+    display: block;
+    width: 100%;
+    height: 30px;
+}
+
+#play{
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 80px;
+    margin: 0 auto;
+    font-size: 33px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    letter-spacing: 6px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.805);
+    border: solid 3px black;
+    border-radius: 30px;
+}
+
+#contCartasCentrales{
+    display: none;  /*Flex*/
+    flex-direction: row;
+    width: 750px;
+    height: 220px;
+    margin: 0 auto;
+    margin-top: 100px;
+    border: solid 5px black;
+    border-radius: 30px;
+    transform: scale(.9);
+}
+
+#contCartasFlop,
+#contCartasRiver,
+#contCartasTurn{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#contCartasFlop{
+    min-width: 450px;
+}
+
+#espacio{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 5px;
+    width: 117.5px;  /*Escala .65 de altura*/
+    height: 170px; /*Escala 1 de altura(100px)*/
+    border: 4px solid black;    
+    border-radius: 20px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 30px;
+    font-weight: 900;
+
+}
+
+/* Estilos de las cartas */
+.carta{    
+    position: absolute;        
+    width: 97.5px;  /*Escala .65 de altura*/
+    height: 150px; /*Escala 1 de altura(100px)*/
+    background-color: beige;
+    border: 1px solid black;
+    border-radius: 15px;
+    margin: 0 5px;
+}
+
+.red{
+    color: red;
+}
+.corazon {
+    position: absolute;
+    top: 60px;
+    left: 48.75px; /*Mitad del WHIDTH la carta*/
+}
+
+.corazon:before,
+.corazon:after {
+    position: absolute;
+    content: "";
+    width: 18px;
+    height: 30px;
+    background-color: red;
+    border-radius: 40px 40px 0 0;
+    transform: rotate(-45deg);
+    transform-origin: 0 100%;
+  }
+  
+.corazon:after {
+    left: -18px;
+    transform: rotate(45deg);
+    transform-origin: 100% 100%;
+  }
+
+.picas {
+    position: absolute;
+    top: 58px;
+    left: 35px;
+}
+
+.picas:before,
+.picas:after {
+    position: absolute;
+    content: "";    
+    width: 18px;
+    height: 30px;
+    background-color: black;
+    border-radius: 40px 40px 0 0;
+    transform: rotate(-135deg);
+    transform-origin: 50% 50%;
+  }
+  
+.picas:after {
+    left: 8.5px;
+    transform: rotate(135deg);
+  }
+
+.diamante{
+    position: absolute;
+    top:50px;
+    left: 38px;
+    
+}
+
+.diamante:before,
+.diamante:after {
+    position: absolute;
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-bottom: 26px solid red; /* Cambia el color aquí */
+}
+
+.diamante:after {
+    left: -25px;
+    transform: rotate(180deg) translateY(1px);;
+    transform-origin: 100% 100%;
+  }
+
+.trebol{
+    position: absolute;
+    top: 70px;
+    left: 30px;
+}
+
+.circulo2,
+.circulo:before,
+.circulo:after{
+    position: absolute;
+    content: "";
+    background-color: black;
+    width: 20px;
+    height: 20px;
+    border-radius: 1000px;
+
+}
+
+.circulo:after{
+    transform: translateX(18px);
+}
+
+.circulo2{
+    top: -14px;
+    left: 9px;;
+}
+
+
+#esquina_superior_izquierda{
+    position: absolute;    
+    width: 15px;
+    height: 30px;
+    top: 8px;
+    left: 5px;
+}
+.textoCarta{
+    position: absolute;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    left: 2px;
+}
+
+.corazon_pequeño,
+.diamante_pequeño,
+.circulo_pequeño,
+.circulo2_pequeño,
+.picas_pequeño{ 
+    transform: scale(.3);
+}
+
+.corazon_pequeño{
+    top: 18px;
+    left: 8px;
+}
+
+.diamante_pequeño{
+    top: 18px;
+    left: 1px;
+}
+
+.circulo_pequeño{
+    top:0;
+    left:0;
+}
+.circulo2_pequeño{
+    top:-12px;
+    left:-3.8px;
+}
+
+.picas_pequeño{
+    top:16px;
+    left:4px;
+}
+.trebol_pequeño{
+    position: absolute;
+    top:20px;
+    left:-1px;
+}
+
+
+#esquina_inferior_derecha{
+    position: absolute;    
+    width: 15px;
+    height: 30px;
+    top: 112px;
+    left: 77px;
+    transform: rotate(180deg);
+}
+
+/* Estilos de la interfaz del jugador*/
+
+#interfazJugador{  
+    display: none; /*block*/
+    position:  fixed;     /*Nota: Pone al contenedor en otro flujo del normal*/
+    bottom: 0;
+    z-index: 999;     
+    height: 220px;
+    width: 1400px;   
+    /*Metodo para centrar horizontalmente*/
+    left: 50%;
+    transform: translateX(-50%)  translateY(20%) scale(.6);    
+}
+
+#interfazNombre {        
+    position: absolute;
+    z-index: 999;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:100px;
+    width: 400px;
+    background-color: black;
+    color: white;
+    border: solid grey 5px;
+    border-radius: 50px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 35px;    
+}
+
+#interfazDatos{ 
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 998;
+    width: 100%;
+    height: 160px;
+    background-color: black;
+    border: solid grey 5px;
+    border-radius: 50px;
+}
+
+#dinero,
+#tiempo{
+    position: absolute;
+    display: flex;
+    width: 250px;
+    height: 90px;    
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 50px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    background-color: grey ;     
+}
+
+#dinero{
+    top: 50%;
+    left: 18%;
+    transform: translateX(-50%) translateY(-50%);
+    color: green;
+}
+
+#tiempo{
+    top: 50%;
+    left: 82%;
+    transform: translateX(-50%) translateY(-50%);
+    color: red;
+}
+#tiempo_i,
+#dinero_i{
+    margin-right: 20px;
+}
+
+#contBotones{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 550px;
+    height: 80px;    
+    top: 75%;
+    left: 50%;
+    transform: translateY(-70%) translateX(-50%);
+}
+
+.boton-ij{
+    width: 125px;
+    height: 50px;
+    margin: 0 10px;
+    border: 5px solid rgb(4, 4, 113);
+    border-radius: 30px;    
+    background-color: blue;
+    font-size: 20px;
+    font-weight: 900;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#interfazCartas{
+    width: 200px;
+    height: 160px;
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(calc(-50% + 15px)) scale(2);    
+}
+
+.inclinada-der,
+.inclinada-izq{
+    top: 8px
+}
+
+.inclinada-izq{
+    transform: rotate(-10deg);
+}
+
+.inclinada-der{
+    transform: rotate(10deg);
+    left: 80px;
+}
+
+.asiento{
+    display: none; /*Block*/
+    position: absolute;
+    width: 400px;
+    height: 120px;
+    transform: scale(.4) ;
+}
+
+.asiento.superior-izq{
+    top:40px;
+    left:-40px;   
+}
+.asiento.superior-der{
+    top:40px;
+    left: 73%; 
+}
+.asiento.lateral-izq{
+    top:45%;
+    left:-180px; 
+
+}
+.asiento.lateral-der{
+    top:45%;
+    left:1030px; 
+}
+.asiento.inferior-izq{
+    top: 80%;
+    left:-40px; 
+}
+.asiento.inferior-der{
+    top: 80%;
+    left: 73%; 
+}
+
+.boton-agregar-jugador{
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    top: -130px;
+    left: 50px
+}
