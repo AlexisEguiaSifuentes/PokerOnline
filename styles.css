@@ -335,7 +335,7 @@ input{
     transform: translateX(-50%)  translateY(20%) scale(.6);    
 }
 
-#interfazNombre {        
+#interfazNombre{        
     position: absolute;
     z-index: 999;
     left: 50%;
@@ -351,6 +351,10 @@ input{
     border-radius: 50px;
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: 35px;    
+}
+
+#interfazNombre.grey{
+    background-color: rgb(50, 50, 50);
 }
 
 #interfazDatos{ 
@@ -394,7 +398,8 @@ input{
     color: red;
 }
 #tiempo_i,
-#dinero_i{
+#dinero_i,
+#microchip_i{
     margin-right: 20px;
 }
 
@@ -445,6 +450,10 @@ input{
     left: 80px;
 }
 
+.carta.inclinada-izq.ocultar,
+.carta.inclinada-der.ocultar{
+    display: none;
+}
 .asiento{
     display: none; /*Block*/
     position: absolute;
@@ -457,11 +466,11 @@ input{
     top:40px;
     left:-40px;   
 }
-.asiento.superior-der{
+.asiento.superior-der{    
     top:40px;
     left: 73%; 
 }
-.asiento.lateral-izq{
+.asiento.lateral-izq{    
     top:45%;
     left:-180px; 
 
@@ -490,6 +499,45 @@ input{
 /*Cambiando el cursor a POINTER a todos los botones*/
 .boton-ij:hover,
 #play:hover,
-.boton-agregar-jugador:hover{
+.boton-agregar-jugador:hover,
+#agregar-jugador:hover,
+#agregar-ia:hover{
     cursor: pointer;
+}
+
+.boton-ij:disabled{    
+    background-color: rgb(100, 100, 100);
+    color: black;
+    border-color: rgb(43, 43, 43);
+    cursor: not-allowed;
+}
+
+/*Interfaz de agregar jugador*/
+#interfaz-agregar-jugador{
+    position: absolute;
+    top: -60%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    width: 400px;
+    height: 250px;
+    background-color: rgba(33, 33, 240, 0.805);
+    border: solid 10px rgb(33, 3, 255);
+    border-radius: 50px;
+}
+
+#agregar-jugador,
+#agregar-ia{
+    display: block;
+    width: 65%;
+    height: 75px;
+    margin: 15px auto;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 30px;
+    font-weight: 100;
+    border: 5px solid black;
+    border-radius: 30px;
+    background-color: rgb(50, 50, 50);
+    color: white;
 }
