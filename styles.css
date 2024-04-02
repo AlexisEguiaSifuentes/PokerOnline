@@ -17,7 +17,7 @@ body{
     top:20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(1, 42, 1, 0.861);
+    background-color: rgba(1, 42, 1, 0.94);
     border: solid 10px rgb(1, 42, 1);
     border-radius: 50px;
 }
@@ -77,18 +77,20 @@ input{
 }
 /* Estilos de la mesa */
 #mesa{
+    display: none; /*block*/
     width: 1250px;
     height: 550px;
     background-color: green;
     margin: 0 auto;
     border: solid 30px maroon;
     border-radius: 2000px; 
-    transform: scale(.85);
+    transform: scale(.73) translateY(-65px);
+    box-shadow: inset 0 10px 120px rgb(0, 0, 0);
 }
 
 /*Estilos del titulo de la mesa*/
 #titulo-mesa{   
-    display: none; /*block*/
+    display: block;
     width: 600px;
     height: 140px;
     margin: 0 auto;
@@ -106,7 +108,7 @@ input{
 
 /* Estilos del contenedor de las cartas centrales*/
 #contCartasCentrales{
-    display: none;  /*Flex*/
+    display: flex;
     flex-direction: row;
     width: 750px;
     height: 220px;
@@ -158,6 +160,10 @@ input{
     margin: 0 5px;
 }
 
+.volteada{
+    background-color: rgb(212, 3, 3);
+    border: 5px solid white;
+}
 .red{
     color: red;
 }
@@ -322,6 +328,26 @@ input{
     transform: rotate(180deg);
 }
 
+#star{
+    position: absolute;
+    top: 380px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    width: 200px;
+    height: 75px;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: white;
+    background-color: rgba(0, 0, 119, 0.8);
+    border: 5px solid rgb(0, 0, 119);;
+    border-radius: 30px;
+}
+
+#star:hover {
+    box-shadow: 0px 0px 10px 5px rgba(0, 0, 250, 0.4);
+}
 /* Estilos de la interfaz del jugador*/
 #interfazJugador{  
     display: none; /*block*/
@@ -355,6 +381,7 @@ input{
 
 #interfazNombre.grey{
     background-color: rgb(50, 50, 50);
+    font-size: 55px;
 }
 
 #interfazDatos{ 
@@ -455,11 +482,11 @@ input{
     display: none;
 }
 .asiento{
-    display: none; /*Block*/
+    display: block;
     position: absolute;
     width: 400px;
     height: 120px;
-    transform: scale(.4) ;
+    transform: scale(.48) ;
 }
 
 .asiento.superior-izq{
@@ -501,10 +528,14 @@ input{
 #play:hover,
 .boton-agregar-jugador:hover,
 #agregar-jugador:hover,
-#agregar-ia:hover{
+#agregar-ia:hover,
+#star{
     cursor: pointer;
 }
 
+.boton-ij:hover{
+    box-shadow: 0px 0px 0 3px rgba(0, 0, 250, 0.3);
+}
 .boton-ij:disabled{    
     background-color: rgb(100, 100, 100);
     color: black;
