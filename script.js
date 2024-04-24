@@ -105,7 +105,7 @@ class Partida{
     this.bigBlind = bigBlind;
     this.smallBlind = smallBlind;
     this.baraja = [...baraja];
-    this.cartasCentrales = ['flop','flop', 'flop', 'turn', 'river'];
+    this.cartasCentrales = [];
     this.apuestaActual = 0;
     this.pozo = 0;
   }
@@ -203,16 +203,17 @@ class Partida{
     this.obtenerCarta(); //Se descarta una carta entre ronda
     const contCartasFlop = document.querySelectorAll('#contCartasFlop #espacio');
     for(let index = 0 ; index < 3 ; index++){
-        let carta = new Carta(this.obtenerCarta());
-        carta.generarCarta();
-        this.cartasCentrales.push(carta);
-        contCartasFlop[index].innerHTML = carta.HTMLString;
+        this.cartasCentrales.push(new Carta(this.obtenerCarta()));
+        this.cartasCentrales[this.cartasCentrales.length - 1].generarCarta();
+        contCartasFlop[index].innerHTML = this.cartasCentrales[this.cartasCentrales.length - 1].HTMLString;
     }  
-
-    if(!this.rondaApuesta() && rondaApuestas){
-      this.turn(false);
-      this.river(false);
+    if(rondaApuestas){
+      if(!this.rondaApuesta()){
+        this.turn(false);
+        this.river(false);
+      }
     }
+    
   }
 
   turn(rondaApuestas = true){
@@ -227,12 +228,15 @@ class Partida{
     this.cartasCentrales.push(carta);
     contCartasTurn.innerHTML = carta.HTMLString;
     
-    if(!this.rondaApuesta() && rondaApuestas){      
-      this.river(false);
+    if(rondaApuestas){
+      if(!this.rondaApuesta()){      
+        this.river(false);
+      }
     }
+    
   }
 
-  river(rondaApuestas = true){
+  river(rondaApuestas = true, finalizar = true){
     this.ronda = 'river';
     console.log("RIVER");
     this.reiniciarApuestas();
@@ -246,7 +250,7 @@ class Partida{
     
     if(rondaApuestas){
       this.rondaApuesta();      
-    }else{
+    }else if(finalizar){
       mesa.partidaActual.finalizar();
     }
   }
@@ -269,13 +273,337 @@ class Partida{
     // this.river()
   }
 
+   
+  // Función de comparación personalizada
+  customComparator(a, b) {
+    const mapearCarta = valor => isNaN(valor) ? ({'J':11,'Q':12,'K':13,'A':14}[valor] || null) : parseInt(valor);    
+
+    if(mapearCarta(a.texto) > mapearCarta(b.texto)){ 
+      return 1
+    }
+
+    if(mapearCarta(a.texto) < mapearCarta(b.texto)){ 
+      return -1
+    }
+
+    return 0  
+  }
+  
+  escaleraReal(listaCartas){
+    if(this.escaleraColor(listaCartas)){
+      if(listaCartas[listaCartas.length - 1].texto == 'A'){
+        return true
+      }
+    }
+    return false;
+  }
+
+  escaleraColor(listaCartas){  
+    let palo = listaCartas[0].palo;        
+    return listaCartas.filter(carta => carta.palo !== palo).length == 0;
+  }
+
+  escalera(listaCartas, jugadorP){
+    const mapearCarta = valor => isNaN(valor) ? ({'J':11,'Q':12,'K':13,'A':14}[valor] || null) : parseInt(valor);    
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+    for(let index = listaCartas.length-1 ; index > 3 ; index --){
+      let cartaBase = listaCartas[index];            
+      if(mapearCarta(listaCartas[index - 1].texto) == mapearCarta(cartaBase.texto) - 1){
+        if(mapearCarta(listaCartas[index - 2].texto) == mapearCarta(cartaBase.texto) - 2){
+          if(mapearCarta(listaCartas[index - 3].texto) == mapearCarta(cartaBase.texto) - 3){
+            if(mapearCarta(listaCartas[index - 4].texto) == mapearCarta(cartaBase.texto) - 4){
+              let mano = [...listaCartas.slice(index-4, index)];                
+              jugador.mano = [...mano];
+              
+              if(this.escaleraReal(jugador.mano)){
+                jugador.manoTexto = 'escalera real';
+              }else if(this.escaleraColor(jugador.mano)){
+                jugador.manoTexto = 'escalera de color';
+              }else{
+                jugador.manoTexto = 'escalera';
+              }
+
+              return true;
+            }
+          }
+        }
+      }         
+    } 
+    return false;
+  }
+
+  color(listaCartas, jugadorP){
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+    listaCartas.sort(this.customComparator);
+
+    let cartas = listaCartas.filter(carta=> carta.palo == 'diamante');
+    if(cartas.length < 5){
+      cartas = listaCartas.filter(carta=> carta.palo == 'trebol');
+      if(cartas.length < 5){
+        cartas = listaCartas.filter(carta=> carta.palo == 'corazon');
+        if(cartas.length < 5){
+          cartas = listaCartas.filter(carta=> carta.palo == 'picas');
+          if(cartas.length < 5){
+            return false;
+          }
+        }
+      }
+    }
+
+    let diferencia = cartas.length - 5;
+    if(diferencia > 0){
+      for(let index = 0; index < diferencia ; index++){
+        cartas.shift();
+      }
+    }
+
+    jugador.mano = [...cartas]
+    return true
+  }
+
+  cartaAlta(listaCartas, jugadorP){
+
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+    jugador.mano = [...listaCartas.slice(2)].reverse();
+    jugador.manoTexto = 'carta alta';
+  }
+
+  seRepiteXTimes(arr, elemento, cantidad){
+    // Filtrar el arreglo para obtener solo los elementos iguales al elemento dado
+    const elementosIguales = arr.filter(item => item.texto == elemento.texto);
+    // Si la longitud de los elementos iguales es igual a la cantidad especificada, retorna true, de lo contrario, false
+    return elementosIguales.length === cantidad;
+  }
+
+  par(listaCartas, jugadorP){
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+    
+    let par = false;
+    for(let index = listaCartas.length-1 ; index > 0 ; index --){
+      if(this.seRepiteXTimes(listaCartas, listaCartas[index], 2)){  
+        for(let i = 0 ; i < 2 ; i++){
+         jugador.mano.push(listaCartas[index - i]);
+         listaCartas.splice(index - i, 1);
+        };
+        par = true;      
+        break;
+      }
+    }
+
+    if(par){
+      jugador.mano.push(listaCartas[listaCartas.length - 1]);
+      jugador.mano.push(listaCartas[listaCartas.length - 2]);
+      jugador.mano.push(listaCartas[listaCartas.length - 3]);        
+      jugador.manoTexto = 'par';
+      return true;
+    }
+
+    return false;
+  }
+
+  doblePar(listaCartas, jugadorP){
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+    
+    let doblepar = false;
+    for(let index =  listaCartas.length-1; index > 0 ; index --){
+      if(this.seRepiteXTimes(listaCartas, listaCartas[index], 2)){
+        for(let i = 0 ; i < 2 ; i++){
+          jugador.mano.push(listaCartas[index - i]);
+          listaCartas.splice(index - i, 1);
+         }
+        doblepar = true;
+        break;
+      }
+    }
+    
+    if(doblepar){     
+      doblepar = false;
+      for(let index2 = listaCartas.length-1 ; index2 > 0 ; index2 --){
+        if(this.seRepiteXTimes(listaCartas, listaCartas[index2], 2)){
+          for(let i = 0 ; i < 2 ; i++){
+            jugador.mano.push(listaCartas[index2 - i]);
+            listaCartas.splice(index2 - i, 1);
+           }
+          doblepar = true;
+          break;  
+        }
+      }
+    }
+
+    if(doblepar){
+      jugador.mano.push(listaCartas[listaCartas.length - 1]);
+      jugador.manoTexto = 'doble par';
+      return true; 
+    }
+
+    return false;
+  }
+
+  tercia(listaCartas, jugadorP){
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+    
+    for(let index = listaCartas.length-1 ; index > 1 ; index --){
+      if(this.seRepiteXTimes(listaCartas, listaCartas[index], 3)){
+        for(let i = 0 ; i < 3 ; i++){
+          jugador.mano.push(listaCartas[index - i]);
+          listaCartas.splice(index - i, 1);
+         }
+        break
+      }
+    }
+
+    if(jugador.mano.length === 3){
+      jugador.mano.push(listaCartas[listaCartas.length - 1]);
+      jugador.mano.push(listaCartas[listaCartas.length - 2]);
+      jugador.manoTexto = 'tercia';
+      return true
+    }
+
+    return false;
+  }
+
+  poker(listaCartas, jugadorP){
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+  
+    for(let index = listaCartas.length-1 ; index > 2 ; index --){
+      if(this.seRepiteXTimes(listaCartas, listaCartas[index], 4)){
+        for(let i = 0 ; i < 4 ; i++){
+          jugador.mano.push(listaCartas[index - i]);
+          listaCartas.splice(index - i, 1);
+         }
+        break
+      }
+    }
+
+    if(jugador.mano.length == 4){
+      jugador.mano.push(listaCartas[ listaCartas.length - 1]);
+      jugador.manoTexto = 'poker';
+      return true
+    }
+
+    return false;
+  }
+
+  fullhouse(listaCartas, jugadorP){
+    let jugador = this.listaJugadores[this.listaJugadores.indexOf(jugadorP)];
+    jugador.mano = [];
+
+    for(let index = listaCartas.length-1 ; index > 1 ; index --){
+      if(this.seRepiteXTimes(listaCartas, listaCartas[index], 3)){
+        for(let i = 0 ; i < 3 ; i++){
+          jugador.mano.push(listaCartas[index - i]);
+          listaCartas.splice(index - i, 1);
+         }
+        break
+      }
+    }
+
+    if(jugador.mano.length == 3 ){        
+      // console.log(listaCartas.length)
+      for(let index = listaCartas.length-1 ; index > 0 ; index --){
+          // console.log(listaCartas[index]);
+          if(this.seRepiteXTimes(listaCartas, listaCartas[index], 2)){
+            for(let i = 0 ; i < 2 ; i++){
+              jugador.mano.push(listaCartas[index - i]);
+              listaCartas.splice(index - i, 1);
+             }
+            jugador.manoTexto = 'full house' 
+            return true
+          }
+      }
+    }
+    return false;
+  }
+
+  desempatarManos(mano1, mano2){
+    const mapearCarta = valor => isNaN(valor) ? ({'J':11,'Q':12,'K':13,'A':14}[valor] || null) : parseInt(valor);    
+    for(let index = 0 ; index < mano1.length-1 ; index++){
+      if(mapearCarta(mano1.texto) > mapearCarta(mano2.texto)){
+        return 1; //Retorna 1 si la mano1 es mayor que la mano2
+      }else if(mapearCarta(mano1.texto) < mapearCarta(mano2.texto)){
+        return mano2; // Retorna -1 si la mano2 es mayot que la mano1
+      }
+    }
+
+    return 0; // Retorna 0 si ambas manos son iguales
+  }
+
   definirGanadores(){
     if(this.listaJugadoresAllin.length > 0 ){
-      this.listaJugadores.push(...this.listaJugadoresAllin);
+      this.listaJugadores = [...this.listaJugadoresAllin];
     }
-    if(this.listaJugadores.length > 1){
-      // Metodo para definir ganador(es) 
-      let a = 'a';
+
+    if(this.listaJugadores.length > 0){
+      // Se obtiene la mejor mano de cada jugador
+
+      if(this.cartasCentrales.length < 5){        
+          if(mesa.partidaActual.ronda === 'preflop'){
+            mesa.partidaActual.flop(false);
+            mesa.partidaActual.turn(false);
+            mesa.partidaActual.river(false);
+          }else if(mesa.partidaActual.ronda === 'flop'){
+            mesa.partidaActual.turn(false);
+            mesa.partidaActual.river(false);
+          }else if(mesa.partidaActual.ronda === 'turn'){          
+            mesa.partidaActual.river(false);
+          }else if(mesa.partidaActual.ronda === 'river'){
+            mesa.partidaActual.finalizar();
+          }        
+      }
+      this.listaJugadores.forEach((jugador)=>{ 
+        let listaCartas = [];
+        listaCartas = [...jugador.cartas.slice(), ...this.cartasCentrales.slice()];
+        listaCartas.sort(this.customComparator); 
+         
+        let texto2 = `${jugador.nombre}: ${jugador.cartas[0].texto}${jugador.cartas[0].palo} ${jugador.cartas[1].texto}${jugador.cartas[1].palo}\n`;
+        listaCartas.forEach((carta)=>{texto2 += `${carta.texto}${carta.palo}, `});
+        console.log(texto2);
+
+        if(!this.escalera(listaCartas.slice(), jugador)){
+          if(!this.color(listaCartas.slice(), jugador)){
+            if(!this.poker(listaCartas.slice(), jugador)){
+              if(!this.fullhouse(listaCartas.slice(), jugador)){
+                if(!this.tercia(listaCartas.slice(), jugador)){
+                  if(!this.doblePar(listaCartas.slice(), jugador)){
+                    if(!this.par(listaCartas.slice(), jugador)){
+                      this.cartaAlta(listaCartas.slice(), jugador);
+                    }
+                  }
+                } 
+              }
+            }
+          }         
+        }
+
+        let texto = `${jugador.manoTexto}: `;
+        jugador.mano.forEach((carta)=>{texto += `${carta.texto}${carta.palo}, `});
+        console.log(texto);
+      });
+
+      const evaluarMano = valor => isNaN(valor) ? ({'escalera real':10, 'escalera color':9, 'poker':8, 'full house':7, 'color': 6, 'escalera': 5, 'tercia':4, 'doble par': 3, 'par': 2, 'carta alta':1}[valor] || null) : parseInt(valor);    
+        let ganadores = [this.listaJugadores[0]];        
+        for(let index = 1 ; index < this.listaJugadores.length - 1 ; index ++){
+            if(evaluarMano(ganadores[0].manoTexto) < evaluarMano(this.listaJugadores[index].manoTexto)){
+                ganadores = [this.listaJugadores[index]];
+            }else if(evaluarMano(ganadores[0].manoTexto) == evaluarMano(this.listaJugadores[index].manoTexto)){
+
+                if(this.desempatarManos(ganadores[0].mano, this.listaJugadores.mano) == -1){
+                  ganadores = [this.listaJugadores[index]];
+                }else if(this.desempatarManos(ganadores[0].mano, this.listaJugadores.mano) == 0){
+                  ganadores.push(this.listaJugadores[index]);
+                }
+            }
+        }
+      
+      this.listaJugadores = ganadores;
+      console.log(ganadores);
     }
   }
 
@@ -287,7 +615,7 @@ class Partida{
   mostrarGanadores(){
     let texto = `Pozo: $${this.pozo}\nGanadores:\n `;
     this.listaJugadores.forEach((jugador)=>{
-      texto += `${jugador.nombre}: + $${this.gananciaIndividual}\n`;
+      texto += `${jugador.nombre}: + $${this.gananciaIndividual} ${jugador.manoTexto}\n`;
     });
     alert(texto);
   }
@@ -313,9 +641,19 @@ class Partida{
     this.listaJugadores.forEach((jugador)=>{clearInterval(jugador.temporizador.intervalo)});
   }
 
+  mostrarCartas(){
+    let jugadoresActivos = [...this.listaJugadores, ...this.listaJugadoresAllin];
+    console.log(`LJ: ${this.listaJugadores}`);
+    console.log(`LJA: ${this.listaJugadoresAllin}`);
+    jugadoresActivos.forEach((jugador)=>{
+      // console.log(`${jugador.nombre}`)
+      jugador.renderizarCartas(false)});
+  }
+
   finalizar(){
     this.detenerTemporizadores();
-    this.definirGanadores();
+    this.mostrarCartas();    
+    this.definirGanadores();    
     this.recompensarGanadores();
     setTimeout(()=>{this.mostrarGanadores()},2000);
     this.actualizarContenedoresGanadores();
@@ -346,6 +684,7 @@ class Jugador{
     this.estado = 'activo';
     this.cartas=[];
     this.temporizador = new Temporizador(30, this.asiento, this);
+    this.mano = []; // Arreglo donde se guardara la mano de cinco cartas del jugador
   }
 
   deshabilitarBotones(){
@@ -438,7 +777,7 @@ class Jugador{
     this.actulizarContenedoresDineroApuesta();
     this.asiento.querySelector('#contApuesta').innerText = `FOLD: ${this.apuesta}`;
     
-    if(mesa.partidaActual.listaJugadores.length - 1 <= 1){
+    if(mesa.partidaActual.listaJugadores.length - 1 <= 1 && mesa.partidaActual.listaJugadoresAllin == 0 ){
       // Definir ganador
       // Se detiene el temporizador del jugador actual
       clearInterval(this.temporizador.intervalo);
@@ -446,10 +785,10 @@ class Jugador{
       mesa.partidaActual.actualizarPozo(); 
       mesa.partidaActual.finalizar();
     }else{
-      // Se detiene el temporizador del jugador actual y se continua
-      // con la funcionalidad de la partida
+
       this.temporizador.detenerTemporizador(); 
       mesa.partidaActual.listaJugadores.splice(mesa.partidaActual.listaJugadores.indexOf(this), 1);
+      
     } 
     console.log(`${this.nombre} FOLD: ${this.apuesta}`); 
   };
@@ -508,19 +847,23 @@ class Jugador{
   }
 
   /* Front End */
-  renderizarCartas(){ 
-    const interfazCartas = this.asiento.querySelector('#interfazCartas');
-    let cartaIzq = this.cartas[0];
-    let cartaDer = this.cartas[1];
+  renderizarCartas(ocultar = true){ 
+    let interfazCartas = this.asiento.querySelector('#interfazCartas'); 
+    let cartaIzq = this.cartas[0]; //console.log(`${this.cartas[0].texto} ${this.cartas[0].palo}`)
+    let cartaDer = this.cartas[1]; //console.log(`${this.cartas[1].texto} ${this.cartas[1].palo}`)
     cartaIzq.orientacion = 'izq';
     cartaDer.orientacion = 'der';
         
-    if(this.tipo === 'bot'){
+    if(this.tipo === 'bot' && ocultar){
       cartaIzq.ocultar = true;
-      cartaDer.ocultar = true;}
+      cartaDer.ocultar = true;
+    }else{
+      cartaIzq.ocultar = false;
+      cartaDer.ocultar = false;
+    }
 
-    cartaIzq.generarCarta();
-    cartaDer.generarCarta();
+    cartaIzq.generarCarta(); //console.log(`${cartaIzq.HTMLString}`);
+    cartaDer.generarCarta(); //console.log(`${cartaDer.HTMLString}`);
     interfazCartas.innerHTML = cartaIzq.HTMLString + cartaDer.HTMLString;     
   }
 };
@@ -607,19 +950,19 @@ class Carta{
       this.HTMLString += '<div class="carta ';}
 
     if(this.ocultar){
-      this.HTMLString += 'volteada">';
+      this.HTMLString += 'volteada"></div>';
     }else{
-      this.HTMLString += '">';
+      this.HTMLString += '">';  
       if (this.palo === 'diamante'){
-         this.cartaDiamantes();
+        this.cartaDiamantes();
       }else if(this.palo === 'trebol'){        
-        this.cartaTreboles();
+       this.cartaTreboles();
       }else if(this.palo === 'picas'){
-         this.cartaPicas();
+        this.cartaPicas();
       }else if(this.palo === 'corazon'){
-         this.cartaCorazones();
-      }
-    }     
+        this.cartaCorazones();
+      }     
+    }
   }
 }
 
@@ -650,7 +993,7 @@ class Temporizador {
     let index = mesa.partidaActual.listaJugadores.indexOf(this.dueño);
     if (index < mesa.partidaActual.listaJugadores.length - 1){
       mesa.partidaActual.listaJugadores[index + 1].jugarTurno();
-    }else if(mesa.partidaActual.comprobarApuestaActual()){
+    }else if(mesa.partidaActual.comprobarApuestaActual() || mesa.partidaActual.listaJugadores.length <= 1 ){
       setTimeout(()=>{
         if(mesa.partidaActual.ronda === 'preflop'){      
           mesa.partidaActual.flop();      
@@ -668,13 +1011,29 @@ class Temporizador {
 
     if(this.tiempo === 0){ // Se elimina al jugador si se le termina el tiempo
       this.dueño.estado = 'inactivo';
-      mesa.partidaActual.splice(index,1);
+      this.dueño.asiento.querySelector('#apuesta').innerText = 'Eliminado';
+      mesa.partidaActual.listaJugadores.splice(index,1);
     }
 
     if(this.dueño.estado === 'allin'){
       mesa.partidaActual.listaJugadoresAllin.push(mesa.partidaActual.listaJugadores.splice(index,1)[0]);
-    }
+
+      // if(mesa.partidaActual.listaJugadores.length === 0){
+      //   if(mesa.partidaActual.ronda === 'preflop'){
+      //     mesa.partidaActual.flop(false);
+      //     mesa.partidaActual.turn(false);
+      //     mesa.partidaActual.river(false);
+      //   }else if(mesa.partidaActual.ronda === 'flop'){
+      //     mesa.partidaActual.turn(false);
+      //     mesa.partidaActual.river(false);
+      //   }else if(mesa.partidaActual.ronda === 'turn'){          
+      //     mesa.partidaActual.river(false);
+      //   }else if(mesa.partidaActual.ronda === 'river'){
+      //     mesa.partidaActual.finalizar();
+      //   }
+      // }
   }
+}
 
   reiniciarTemporizador(tiempo) {
     this.tiempo = tiempo;
