@@ -524,11 +524,11 @@ class Partida{
 
   desempatarManos(mano1, mano2){
     const mapearCarta = valor => isNaN(valor) ? ({'J':11,'Q':12,'K':13,'A':14}[valor] || null) : parseInt(valor);    
-    for(let index = 0 ; index < mano1.length-1 ; index++){
+    for(let index = 0 ; index < mano1.length ; index++){
       if(mapearCarta(mano1.texto) > mapearCarta(mano2.texto)){
         return 1; //Retorna 1 si la mano1 es mayor que la mano2
       }else if(mapearCarta(mano1.texto) < mapearCarta(mano2.texto)){
-        return mano2; // Retorna -1 si la mano2 es mayot que la mano1
+        return -1; // Retorna -1 si la mano2 es mayot que la mano1
       }
     }
 
