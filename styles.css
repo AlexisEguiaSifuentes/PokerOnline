@@ -7,6 +7,12 @@ body{
     padding: 0;
     margin: 0;    
     background-color: rgb(180, 172, 172);
+
+    /* Deshabilita la selección de texto en todo el documento */
+    -webkit-user-select: none; /* Para navegadores basados en WebKit como Chrome y Safari */
+    -moz-user-select: none; /* Para navegadores basados en Gecko como Firefox */
+    -ms-user-select: none; /* Para Internet Explorer */
+    user-select: none; /* Propiedad estándar */
 }
 
 /* Estilos interfaz de inicio */
@@ -346,11 +352,9 @@ input{
     transform: rotate(180deg);
 }
 
-#star{
-    position: absolute;
-    top: 380px;
-    left: 50%;
-    transform: translateX(-50%);
+#star,
+#nuevaPartida{
+    position: absolute;    
     display: block;
     width: 200px;
     height: 75px;
@@ -362,8 +366,19 @@ input{
     border: 5px solid rgb(0, 0, 119);;
     border-radius: 30px;
 }
-
-#star:hover {
+#star{
+    top: 380px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#nuevaPartida{
+    display: none;
+    font-size: 28px;
+    bottom: 15px;
+    right: 30px;
+}
+#star:hover,
+#nuevaPartida:hover{
     box-shadow: 0px 0px 10px 5px rgba(0, 0, 250, 0.4);
 }
 /* Estilos de la interfaz del jugador*/
@@ -473,7 +488,71 @@ input{
 #tiempo.pequeño{
     left: 55%
 }
+#contTurno{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
+    height: 150px;    
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;    
+    letter-spacing: 3px;
+    border-radius: 100px;
+}
+#contTurno.principal{
+    position: absolute; 
+    z-index: 999;  
+    transform: scale(.7);
+    left: -150px;
+    top: 55px;       
+}
+#contTurno.pequeño{
+    position: absolute;   
+    top: 80px;
+}
 
+#contTurno.superior-der,
+#contTurno.lateral-der,
+#contTurno.inferior-der{    
+    left: -65%; 
+}
+
+#contTurno.superior-izq,
+#contTurno.lateral-izq,
+#contTurno.inferior-izq{    
+    left: 125%; 
+}
+.smallBlind::before{
+    content: 'SMALL BLIND';
+}
+.smallBlind{
+    color: white;
+    font-size: 28px;
+    border: solid 2px rgb(64, 0, 174);
+    background-color: rgb(60, 4, 158);
+}
+
+.bigBlind::before{
+    content: 'BIG BLIND';
+}
+.bigBlind{
+    color: black;
+    font-size: 30px;
+    border: solid 2px rgb(219, 204, 0);
+    background-color: rgb(247, 231, 0);
+}
+
+.dealer::before{
+    content: 'DEALER';
+}
+.dealer{
+    color: black;
+    font-size: 30px;
+    letter-spacing: 0;
+    border: solid 2px rgb(0, 0, 0);
+    background-color: rgb(255, 255, 255);
+}
 #contBotones{
     display: flex;
     justify-content: center;
@@ -561,7 +640,7 @@ input{
 
 #contApuesta{
     display: flex;
-    width: 400px;
+    width: 500px;
     height: 200px;
     justify-content: center;
     align-items: center;
@@ -570,7 +649,7 @@ input{
     left: -20px;
     z-index: 999;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: 70px;
+    font-size: 60px;
     color: blue;
     /* background-color: red; */
 }
@@ -578,13 +657,13 @@ input{
 #contApuesta.superior-der,
 #contApuesta.lateral-der,
 #contApuesta.inferior-der{ 
-    left: -100%;
+    left: -120%;
 }
 
 #contApuesta.superior-izq,
 #contApuesta.lateral-izq,
 #contApuesta.inferior-izq{
-    left: 100%;
+    left: 80%;
 } 
 
 
@@ -603,15 +682,18 @@ input{
 .boton-agregar-jugador:hover,
 #agregar-jugador:hover,
 #agregar-ia:hover,
-#star{
+#star:hover,
+#nuevaPartida:hover{
     cursor: pointer;
 }
 
 .boton-ij:hover{
     box-shadow: 0px 0px 0 3px rgba(0, 0, 250, 0.3);
 }
-.boton-ij:disabled{    
+.boton-ij:disabled,
+#nuevaPartida:disabled{    
     background-color: rgb(100, 100, 100);
+    box-shadow: 0px 0px 0 1px rgb(100, 100, 100, 0.3);
     color: black;
     border-color: rgb(43, 43, 43);
     cursor: not-allowed;

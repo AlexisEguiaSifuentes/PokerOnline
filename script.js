@@ -63,16 +63,17 @@ const buttonPlay = document.getElementById("play");
 /* Contenedores de la mesa*/
 const elementoMesa = document.getElementById('mesa');
 const tituloMesa = document.getElementById("titulo-mesa");
-const contCartasCentrales = document.getElementById("contCartasCentrales");
+const cartasCentrales = document.querySelectorAll("#espacio");
 const asientos = document.querySelectorAll(".asiento");
 const buttonStar = document.getElementById('star');
 const contPozo = document.getElementById('pozo');
 
 /* Contenedores de la interfaz del jugador*/
 const interfazJugador = document.getElementById("interfazJugador");
-const interfazNombre = document.getElementById("interfazNombre")
-const interfazDinero = document.getElementById("dinero")
-const interfazTiempo = document.getElementById("tiempo")
+const interfazNombre = document.getElementById("interfazNombre");
+const interfazDinero = document.getElementById("dinero");
+const interfazTiempo = document.getElementById("tiempo");
+const buttonNuevaPartida = document.getElementById("nuevaPartida");
 
 class Mesa{
   // Asientos, turnos, delear, entrada(Min y Max) y Pozo
@@ -92,8 +93,71 @@ class Mesa{
     });
   };
 
-  crearPartida(){
-    this.partidaActual = new Partida(this.asientos.filter((asiento) => {if(typeof asiento !== 'string'){return asiento}}), this.bigBlind, this.smallBlind);
+  crearPartida(){    
+    let listaJugadores = this.asientos.filter((asiento) => asiento instanceof Jugador);
+        listaJugadores = listaJugadores.filter((jugador)=> jugador.estado === 'activo');        
+
+    if(listaJugadores.length >= 2){
+      // Metodo para cambiar el orden de las fichas de turno
+      let jugador_ultimoTurno = this.asientos.find((asiento)=> asiento instanceof Jugador && asiento?.estado == 'activo');
+      while(jugador_ultimoTurno !== this.asientos[this.asientos.length - 1]){
+        this.asientos.push(this.asientos.splice(0,1)[0]);
+      }
+      
+      listaJugadores = this.asientos.filter((asiento) => asiento instanceof Jugador);
+      listaJugadores = listaJugadores.filter((jugador)=> jugador.estado === 'activo');
+
+      // Crear nueva partida
+      this.partidaActual = new Partida(listaJugadores, this.bigBlind, this.smallBlind);
+      return true;
+    }
+    return false;
+  }
+
+  limpiarMesa(){
+    let arr = ['Flop','Flop','Flop','Turn','River'];
+    Array.from(cartasCentrales).forEach((espacio)=>{espacio.innerText = arr[Array.from(cartasCentrales).indexOf(espacio)]});
+    Array.from(document.querySelectorAll('#contTurno')).forEach((contenedor)=>{      
+      if(['smallBlind','bigBlind','dealer'].includes(contenedor.classList.item(contenedor.classList.length - 1))){
+        contenedor.classList.remove(contenedor.classList.item(contenedor.classList.length - 1));        
+      }
+    });
+    Array.from(document.querySelectorAll('#contApuesta')).forEach((contenedor)=>{
+      contenedor.innerText = "";
+    });
+    Array.from(document.querySelectorAll('#interfazCartas')).forEach((contenedor)=>{
+      contenedor.innerHTML = "";
+    });
+    Array.from(document.querySelectorAll('#tiempo')).forEach((contenedor)=>{
+      contenedor.innerHTML = '<svg id="tiempo_i" height="50" width="50" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1"><path d="m13.5 2.115v-.615a1.5 1.5 0 0 0 -3 0v.615a10.968 10.968 0 0 0 -7.214 17.572 3.526 3.526 0 0 0 -1.286 2.813 1.5 1.5 0 0 0 3 0 .641.641 0 0 1 .455-.68 10.917 10.917 0 0 0 13.087 0 .641.641 0 0 1 .458.68 1.5 1.5 0 0 0 3 0 3.526 3.526 0 0 0 -1.286-2.813 10.968 10.968 0 0 0 -7.214-17.572zm-9.5 10.885a8 8 0 1 1 8 8 8.009 8.009 0 0 1 -8-8z"/><path d="m19.5 0a1.5 1.5 0 0 0 0 3 1.361 1.361 0 0 1 1.459 1.5 1.5 1.5 0 0 0 3 0 4.333 4.333 0 0 0 -4.459-4.5z"/><path d="m3.041 4.5a1.361 1.361 0 0 1 1.459-1.5 1.5 1.5 0 0 0 0-3 4.333 4.333 0 0 0 -4.459 4.5 1.5 1.5 0 0 0 3 0z"/><path d="m13.53 12.379v-3.879a1.5 1.5 0 0 0 -1.5-1.5 1.5 1.5 0 0 0 -1.5 1.5v4.293a2 2 0 0 0 .586 1.414l1.793 1.793a1.5 1.5 0 0 0 2.121-2.121z"/></svg>00:00</div>';
+    });
+    contPozo.innerHTML = '<svg id="dinero_i" data-name="Layer 1" viewBox="0 0 24 24" width="160" height="160"><path d="M16.5,0c-4.206,0-7.5,1.977-7.5,4.5v2.587c-.484-.057-.985-.087-1.5-.087C3.294,7,0,8.977,0,11.5v8c0,2.523,3.294,4.5,7.5,4.5,3.416,0,6.231-1.304,7.167-3.146,.597,.087,1.207,.146,1.833,.146,4.206,0,7.5-1.977,7.5-4.5V4.5c0-2.523-3.294-4.5-7.5-4.5Zm0,2c3.148,0,5.5,1.32,5.5,2.5s-2.352,2.5-5.5,2.5-5.5-1.32-5.5-2.5,2.352-2.5,5.5-2.5ZM7.5,9c3.148,0,5.5,1.32,5.5,2.5s-2.352,2.5-5.5,2.5-5.5-1.32-5.5-2.5,2.352-2.5,5.5-2.5ZM2,14.582c1.36,.875,3.303,1.418,5.5,1.418s4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5s-5.5-1.32-5.5-2.5v-.918Zm5.5,7.418c-3.148,0-5.5-1.32-5.5-2.5v-.918c1.36,.875,3.303,1.418,5.5,1.418s4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Zm9-3c-.514,0-1.012-.047-1.5-.116v-1.98c.492,.058,.99,.096,1.5,.096,2.197,0,4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Zm0-4c-.514,0-1.012-.047-1.5-.116v-1.98c.492,.058,.99,.096,1.5,.096,2.197,0,4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Zm0-4c-.542,0-1.066-.051-1.578-.127-.198-.887-.809-1.684-1.721-2.321,.992,.285,2.106,.449,3.299,.449,2.197,0,4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Z"/></svg>';
+
+  }
+
+  guardarPartidaActual(){
+    if(this.partidaActual instanceof Partida){
+      mesa.listaPartidas.push(mesa.partidaActual);      
+    }
+  }
+
+  reiniciarAtributosJugadores(){
+    mesa.asientos.forEach((jugador)=>{
+      if(typeof jugador !== 'string'){
+        jugador.apuesta = 0;
+        jugador.smallBlind = 0;
+        jugador.bigBlind = 0;        
+        jugador.cartas = [];
+        jugador.mano = [];
+        jugador.turno = null;
+
+        if(jugador.dinero > 0){
+          jugador.estado = 'activo';
+        }else{
+          jugador.estado = 'inactivo';
+        }
+      }
+    });
   }
 };
 
@@ -111,19 +175,25 @@ class Partida{
   }
 
   definirTurnos(){
-    let turnos = ['delear', 'smallBlind', 'bigBlind','1','2','3','4'];
+    let turnos = ['dealer', 'smallBlind', 'bigBlind','1','2','3','4'];
+
+    if(this.listaJugadores.length <= 2){ 
+      turnos.shift();
+    }
+
     this.listaJugadores.forEach((jugador)=>{
       if (jugador.estado === 'activo') {
           jugador.turno = turnos[0];
+          jugador.asiento.querySelector("#contTurno").classList.add(jugador.turno);          
           turnos.shift();
-      }else{  
-        jugador.turno = null;
       }
     });
     
-    /* Ponemos al Delear en el ultimo turno */
-    let delear = this.listaJugadores.splice(0,1)[0];
-    this.listaJugadores.push(delear);
+    if(this.listaJugadores.length > 2){ 
+      /* Ponemos al Delear en el ultimo turno */
+      let delear = this.listaJugadores.splice(0,1)[0];
+      this.listaJugadores.push(delear);
+    }
   }
 
   barajear() {
@@ -147,7 +217,7 @@ class Partida{
 
     /* Front End */
     this.listaJugadores.forEach((jugador)=>{
-      jugador.renderizarCartas();
+      jugador.renderizarCartas(); // console.log(`Renderizar Cartas: ${jugador.nombre} ${jugador}`);
     });         
   }
 
@@ -188,7 +258,7 @@ class Partida{
 
   preflop(){
     this.ronda = 'preflop';
-    console.log("PREFLOP");
+    console.log("*********************\n******* PREFLOP *******\n*********************");
     this.definirTurnos()
     this.barajear();    
     this.repartirCartas();            
@@ -197,7 +267,7 @@ class Partida{
   
   flop(rondaApuestas = true){
     this.ronda = 'flop';
-    console.log("FLOP");
+    console.log("*********************\n******* FLOP *******\n*********************");
     this.reiniciarApuestas();
     this.actualizarPozo();
     this.obtenerCarta(); //Se descarta una carta entre ronda
@@ -218,7 +288,7 @@ class Partida{
 
   turn(rondaApuestas = true){
     this.ronda = 'turn';
-    console.log("TURN");
+    console.log("*********************\n******* TURN *******\n*********************");
     this.reiniciarApuestas();
     this.actualizarPozo();
     this.obtenerCarta(); //Se descarta una carta entre ronda
@@ -238,7 +308,8 @@ class Partida{
 
   river(rondaApuestas = true, finalizar = true){
     this.ronda = 'river';
-    console.log("RIVER");
+                 
+    console.log("*********************\n******* RIVER *******\n*********************");
     this.reiniciarApuestas();
     this.actualizarPozo();
     this.obtenerCarta(); //Se descarta una carta entre ronda 
@@ -250,7 +321,8 @@ class Partida{
     
     if(rondaApuestas){
       this.rondaApuesta();      
-    }else if(finalizar){
+    }
+    if(finalizar){
       mesa.partidaActual.finalizar();
     }
   }
@@ -319,7 +391,7 @@ class Partida{
               if(this.escaleraReal(jugador.mano)){
                 jugador.manoTexto = 'escalera real';
               }else if(this.escaleraColor(jugador.mano)){
-                jugador.manoTexto = 'escalera de color';
+                jugador.manoTexto = 'escalera color';
               }else{
                 jugador.manoTexto = 'escalera';
               }
@@ -360,6 +432,7 @@ class Partida{
     }
 
     jugador.mano = [...cartas]
+    jugador.manoTexto = 'color';
     return true
   }
 
@@ -525,9 +598,9 @@ class Partida{
   desempatarManos(mano1, mano2){
     const mapearCarta = valor => isNaN(valor) ? ({'J':11,'Q':12,'K':13,'A':14}[valor] || null) : parseInt(valor);    
     for(let index = 0 ; index < mano1.length ; index++){
-      if(mapearCarta(mano1.texto) > mapearCarta(mano2.texto)){
+      if(mapearCarta(mano1[index].texto) > mapearCarta(mano2[index].texto)){
         return 1; //Retorna 1 si la mano1 es mayor que la mano2
-      }else if(mapearCarta(mano1.texto) < mapearCarta(mano2.texto)){
+      }else if(mapearCarta(mano1[index].texto) < mapearCarta(mano2[index].texto)){
         return -1; // Retorna -1 si la mano2 es mayot que la mano1
       }
     }
@@ -563,7 +636,7 @@ class Partida{
         listaCartas.sort(this.customComparator); 
          
         let texto2 = `${jugador.nombre}: ${jugador.cartas[0].texto}${jugador.cartas[0].palo} ${jugador.cartas[1].texto}${jugador.cartas[1].palo}\n`;
-        listaCartas.forEach((carta)=>{texto2 += `${carta.texto}${carta.palo}, `});
+        // listaCartas.forEach((carta)=>{texto2 += `${carta.texto}${carta.palo}, `});
         console.log(texto2);
 
         if(!this.escalera(listaCartas.slice(), jugador)){
@@ -587,23 +660,24 @@ class Partida{
         console.log(texto);
       });
 
-      const evaluarMano = valor => isNaN(valor) ? ({'escalera real':10, 'escalera color':9, 'poker':8, 'full house':7, 'color': 6, 'escalera': 5, 'tercia':4, 'doble par': 3, 'par': 2, 'carta alta':1}[valor] || null) : parseInt(valor);    
+      const evaluarMano = valor => isNaN(valor) ? ({'escalera real':10, 'escalera color':9, 'poker':8, 'full house':7, 'color': 6, 'escalera': 5, 'tercia':4, 'doble par': 3, 'par': 2, 'carta alta':1}[valor] || null) : valor;    
         let ganadores = [this.listaJugadores[0]];        
-        for(let index = 1 ; index < this.listaJugadores.length - 1 ; index ++){
+        for(let index = 1 ; index < this.listaJugadores.length ; index ++){
             if(evaluarMano(ganadores[0].manoTexto) < evaluarMano(this.listaJugadores[index].manoTexto)){
                 ganadores = [this.listaJugadores[index]];
             }else if(evaluarMano(ganadores[0].manoTexto) == evaluarMano(this.listaJugadores[index].manoTexto)){
 
-                if(this.desempatarManos(ganadores[0].mano, this.listaJugadores.mano) == -1){
+                if(this.desempatarManos(ganadores[0].mano, this.listaJugadores[index].mano) == -1){
                   ganadores = [this.listaJugadores[index]];
-                }else if(this.desempatarManos(ganadores[0].mano, this.listaJugadores.mano) == 0){
+                }else if(this.desempatarManos(ganadores[0].mano, this.listaJugadores[index].mano) == 0){
                   ganadores.push(this.listaJugadores[index]);
                 }
             }
         }
       
       this.listaJugadores = ganadores;
-      console.log(ganadores);
+      console.log("Ganadores:")
+      this.listaJugadores.forEach((jugador)=>{console.log(jugador.nombre)});
     }
   }
 
@@ -625,17 +699,6 @@ class Partida{
       jugador.asiento.querySelector('#dinero').innerHTML = `<svg id="dinero_i"  height="50" width="50" data-name="Layer 1" viewBox="0 0 24 24" width="512" height="512"><path d="M16.5,0c-4.206,0-7.5,1.977-7.5,4.5v2.587c-.484-.057-.985-.087-1.5-.087C3.294,7,0,8.977,0,11.5v8c0,2.523,3.294,4.5,7.5,4.5,3.416,0,6.231-1.304,7.167-3.146,.597,.087,1.207,.146,1.833,.146,4.206,0,7.5-1.977,7.5-4.5V4.5c0-2.523-3.294-4.5-7.5-4.5Zm0,2c3.148,0,5.5,1.32,5.5,2.5s-2.352,2.5-5.5,2.5-5.5-1.32-5.5-2.5,2.352-2.5,5.5-2.5ZM7.5,9c3.148,0,5.5,1.32,5.5,2.5s-2.352,2.5-5.5,2.5-5.5-1.32-5.5-2.5,2.352-2.5,5.5-2.5ZM2,14.582c1.36,.875,3.303,1.418,5.5,1.418s4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5s-5.5-1.32-5.5-2.5v-.918Zm5.5,7.418c-3.148,0-5.5-1.32-5.5-2.5v-.918c1.36,.875,3.303,1.418,5.5,1.418s4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Zm9-3c-.514,0-1.012-.047-1.5-.116v-1.98c.492,.058,.99,.096,1.5,.096,2.197,0,4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Zm0-4c-.514,0-1.012-.047-1.5-.116v-1.98c.492,.058,.99,.096,1.5,.096,2.197,0,4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Zm0-4c-.542,0-1.066-.051-1.578-.127-.198-.887-.809-1.684-1.721-2.321,.992,.285,2.106,.449,3.299,.449,2.197,0,4.14-.543,5.5-1.418v.918c0,1.18-2.352,2.5-5.5,2.5Z"/></svg></svg>$${jugador.dinero}`;    
     });
   }
-  reiniciarAtributosJugadores(){
-    mesa.asientos.forEach((jugador)=>{
-      if(typeof jugador !== 'string'){
-        jugador.apuesta = 0;
-        jugador.smallBlind = 0;
-        jugador.bigBlind = 0;
-        jugador.estado = 'activo';
-        jugador.cartas = [];
-      }
-    });
-  }
 
   detenerTemporizadores(){
     this.listaJugadores.forEach((jugador)=>{clearInterval(jugador.temporizador.intervalo)});
@@ -651,13 +714,16 @@ class Partida{
   }
 
   finalizar(){
+    this.ronda = 'finalizada'
     this.detenerTemporizadores();
     this.mostrarCartas();    
     this.definirGanadores();    
     this.recompensarGanadores();
     setTimeout(()=>{this.mostrarGanadores()},2000);
     this.actualizarContenedoresGanadores();
-    this.reiniciarAtributosJugadores();
+    mesa.reiniciarAtributosJugadores();
+    buttonNuevaPartida.removeAttribute('disabled');
+    console.log('*********** Partida Finalizada **********')
   }
 
   comprobarApuestaActual(){
@@ -773,7 +839,7 @@ class Jugador{
   fold(){
     this.estado = 'inactivo';  
     this.deshabilitarBotones();    
-    this.asiento.querySelector('#interfazCartas').style.display = 'none';
+    this.asiento.querySelector('#interfazCartas').innerHTML = '';
     this.actulizarContenedoresDineroApuesta();
     this.asiento.querySelector('#contApuesta').innerText = `FOLD: ${this.apuesta}`;
     
@@ -1009,9 +1075,11 @@ class Temporizador {
       mesa.partidaActual.rondaApuesta();
     }
 
-    if(this.tiempo === 0){ // Se elimina al jugador si se le termina el tiempo
-      this.dueño.estado = 'inactivo';
-      this.dueño.asiento.querySelector('#apuesta').innerText = 'Eliminado';
+    // console.log(`${this.dueño.nombre} -> tiempo: ${this.dueño.temporizador.tiempo}`)
+    if(this.dueño.temporizador.tiempo == 0){ // Se elimina al jugador si se le termina el tiempo
+      this.dueño.estado = 'inactivo';      
+      this.dueño.asiento.querySelector('#contApuesta').innerText = 'Eliminado';
+      console.log(`${this.dueño.nombre} ELIMINADO`);
       mesa.partidaActual.listaJugadores.splice(index,1);
     }
 
@@ -1066,6 +1134,8 @@ function entrar(){
   interfazInicio.style.display = 'none';
   elementoMesa.style.display = 'block';
   interfazJugador.style.display = 'block';
+  buttonNuevaPartida.style.display = 'block';
+  buttonNuevaPartida.setAttribute('disabled', 'true'); 
 
   /*Back End*/
   mesa.agregarJugador(jugadorPrincipal, 'principal');  
@@ -1096,6 +1166,7 @@ function agregarIA(asiento){
       <svg id="microchip_i"  width='70' heigth='7 0' data-name="Layer 1" viewBox="0 0 24 24"><path d="m10,9.261l1.205,4.739h-2.411l1.205-4.739Zm12,1.739v2h1c.552,0,1,.447,1,1s-.448,1-1,1h-1v2h1c.552,0,1,.447,1,1s-.448,1-1,1h-1.418c-.505,1.151-1.431,2.077-2.582,2.582v1.418c0,.553-.448,1-1,1s-1-.447-1-1v-1h-2v1c0,.553-.448,1-1,1s-1-.447-1-1v-1h-2v1c0,.553-.448,1-1,1s-1-.447-1-1v-1h-2v1c0,.553-.448,1-1,1s-1-.447-1-1v-1.418c-1.151-.505-2.077-1.431-2.582-2.582h-1.418c-.552,0-1-.447-1-1s.448-1,1-1h1v-2h-1c-.552,0-1-.447-1-1s.448-1,1-1h1v-2h-1c-.552,0-1-.447-1-1s.448-1,1-1h1v-2h-1c-.552,0-1-.447-1-1s.448-1,1-1h1.418c.505-1.151,1.431-2.077,2.582-2.582v-1.418c0-.553.448-1,1-1s1,.447,1,1v1h2v-1c0-.553.448-1,1-1s1,.447,1,1v1h2v-1c0-.553.448-1,1-1s1,.447,1,1v1h2v-1c0-.553.448-1,1-1s1,.447,1,1v1.418c1.151.505,2.077,1.431,2.582,2.582h1.418c.552,0,1,.447,1,1s-.448,1-1,1h-1v2h1c.552,0,1,.447,1,1s-.448,1-1,1h-1Zm-8.031,5.754l-2.404-9.452c-.182-.777-.811-1.299-1.565-1.299s-1.383.521-1.561,1.28l-2.409,9.471c-.136.535.188,1.079.723,1.215.54.142,1.08-.187,1.216-.723l.317-1.246h3.428l.317,1.246c.115.453.522.754.969.754.082,0,.164-.01.247-.031.535-.136.859-.68.723-1.215Zm3.031-9.754c0-.553-.448-1-1-1s-1,.447-1,1v10c0,.553.448,1,1,1s1-.447,1-1V7Z"/></svg>
       BOT ${mesa.asientos.filter(asiento => typeof asiento !== 'string').length}
     </div>
+    <div id="contTurno" class="pequeño ${asiento.classList.item(1)}"></div>
     <div id="interfazDatos" class="pequeño">
         <div id="dinero" class="pequeño">
             <svg xmlns="http://www.w3.org/2000/svg" id="dinero_i"  height="50"  width="50" data-name="Layer 1" viewBox="0 0 24 24"><path d="m5,6C5,2.691,7.691,0,11,0s6,2.691,6,6-2.691,6-6,6-6-2.691-6-6Zm16.685,10.267l-3.041-.507c-.373-.062-.644-.382-.644-.76,0-.551.448-1,1-1h2c.552,0,1,.449,1,1h2c0-1.654-1.346-3-3-3v-2h-2v2c-1.654,0-3,1.346-3,3,0,1.36.974,2.51,2.315,2.733l3.041.507c.373.062.644.382.644.76,0,.551-.448,1-1,1h-2c-.552,0-1-.449-1-1h-2c0,1.654,1.346,3,3,3v2h2v-2c1.654,0,3-1.346,3-3,0-1.36-.974-2.51-2.315-2.733Zm-7.685,2.733v-4c0-.286.038-.561.084-.834l-.084-.166h-7.5c-2.481,0-4.5,2.019-4.5,4.5v5.5h15v-.424c-1.763-.774-3-2.531-3-4.576Z"/>
@@ -1113,14 +1184,32 @@ function agregarIA(asiento){
 }
 
 function star(){  
-  if (mesa.asientos.filter(asiento => typeof asiento !== 'string').length > 1 ){
+  if (mesa.crearPartida()){
     buttonStar.style.display = 'none';
-    contPozo.style.display = 'flex';
-    mesa.crearPartida();    
+    contPozo.style.display = 'flex';   
     mesa.partidaActual.iniciar();      
   }else{
     alert("¡Se necesitan minimo dos jugadores para empezar!")
   }
+}
+
+function nuevaPartida(){  
+  if(mesa.partidaActual.ronda === 'finalizada'){
+    mesa.reiniciarAtributosJugadores();
+    mesa.guardarPartidaActual();
+    mesa.limpiarMesa()    
+    if(mesa.crearPartida()){
+      buttonNuevaPartida.setAttribute('disabled', 'true');
+      setTimeout(()=>{mesa.partidaActual.iniciar()}, 3000);
+    }else{
+      alert("¡Se necesitan minimo dos jugadores para empezar!")
+    }
+    
+
+  }else{
+    alert("¡La partida actual sigue en curso!");
+  }
+  
 }
 
 buttonPlay.addEventListener('click',entrar); 
